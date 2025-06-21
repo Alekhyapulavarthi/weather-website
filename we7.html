@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(to top, #87ceeb, #ffffff);
+      margin: 0;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Weather Background Animations */
+    .cloud, .sun, .raindrop, .heatwave {
+      position: absolute;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .cloud {
+      width: 100px;
+      height: 60px;
+      background: #fff;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: moveClouds 60s linear infinite;
+      top: 40px;
+    }
+
+    .cloud::before, .cloud::after {
+      content: "";
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    .cloud::before {
+      width: 60px;
+      height: 60px;
+      top: -10px;
+      left: -30px;
+    }
+
+    .cloud::after {
+      width: 60px;
+      height: 60px;
+      top: -10px;
+      left: 60px;
+    }
+
+    @keyframes moveClouds {
+      0% { left: -150px; }
+      100% { left: 100%; }
+    }
+
+    .raindrop {
+      width: 2px;
+      height: 15px;
+      background: #007BFF;
+      animation: rainFall 2s linear infinite;
+    }
+
+    @keyframes rainFall {
+      0% { top: -10px; opacity: 0; }
+      30% { opacity: 1; }
+      100% { top: 100vh; opacity: 0; }
+    }
+
+    .heatwave {
+      width: 100vw;
+      height: 20px;
+      background: repeating-linear-gradient(
+        45deg,
+        #ff3300,
+        #ff3300 10px,
+        #ff9900 10px,
+        #ff9900 20px
+      );
+      animation: wave 3s linear infinite;
+      bottom: 0;
+      left: 0;
+      opacity: 0.3;
+    }
+
+    @keyframes wave {
+      from { background-position: 0 0; }
+      to { background-position: 40px 0; }
+    }
+
+    #main-heading {
+      color: #d2b48c;
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      z-index: 1;
+      position: relative;
+    }
+
+    .search-container {
+      margin: 20px auto;
+      z-index: 1;
+      position: relative;
+    }
+
+    input[type="text"],
+    input[type="date"] {
+      padding: 10px;
+      margin: 5px;
+      width: 200px;
+      border: 2px solid #007BFF;
+      background-color: #e6f0ff;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #d2b48c;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .weather-output {
+      margin-top: 30px;
+      font-size: 1.2em;
+      z-index: 1;
+      position: relative;
+    }
+
+    .graph-bar {
+      height: 20px;
+      background-color: rgb(4, 0, 255);
+      margin-top: 10px;
+      border-radius: 5px;
+      transition: width 0.5s ease;
+    }
+
+    .forecast-section {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 40px;
+      z-index: 1;
+      position: relative;
+    }
+
+    .forecast-card {
+      background-color: #000; /* Black */
+      color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+      padding: 15px;
+      width: 220px;
+    }
+
+    .forecast-card h4 {
+      margin-top: 0;
+    }
+
+    .forecast-card .graph-bar {
+      background-color: #2600ff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Effects -->
+  <div class="cloud" style="left: 10%; animation-delay: 0s;"></div>
+  <div class="cloud" style="left: 40%; animation-delay: 15s;"></div>
+  <div class="heatwave"></div>
+
+  <!-- Main Content -->
+  <h1 id="main-heading">WEATHER FORECAST</h1>
+
+  <div class="search-container">
+    <input type="date" id="date-input" />
+    <input type="text" id="city-input" placeholder="Enter your city" />
+    <button onclick="getWeather()">Check Weather</button>
+  </div>
+
+  <div id="weather-output" class="weather-output"></div>
+
+  <h2 style="margin-top: 50px;">Other City Forecasts</h2>
+  <div id="forecast-section" class="forecast-section"></div>
+
+  <script>
+    function getWeather() {
+      const date = document.getElementById("date-input").value;
+      const city = document.getElementById("city-input").value.trim();
+      const output = document.getElementById("weather-output");
+
+      if (!date || !city) {
+        output.innerHTML = "<p>Please enter both date and city.</p>";
+        return;
+      }
+
+      const weatherTypes = ["Sunny", "Rainy", "Cloudy", "Windy"];
+      const randomWeather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+      const temperature = Math.floor(Math.random() * 15) + 20;
+
+      let resultHTML = `<h3>Weather in ${city} on ${date}</h3>`;
+      resultHTML += `<p>Condition: ${randomWeather}</p>`;
+      resultHTML += `<p>Temperature: ${temperature}°C</p>`;
+      resultHTML += `<div class="graph-bar" style="width: ${temperature * 2}px;"></div>`;
+
+      if (randomWeather === "Rainy") {
+        resultHTML += `<p style="color:red;">Warning: Rain expected. Avoid staying under trees or near electric poles.</p>`;
+      }
+
+      output.innerHTML = resultHTML;
+    }
+
+    const forecastData = [
+      {
+        city: "London",
+        temp: 25,
+        condition: "Cloudy",
+        info: "Cool and cloudy with light breeze."
+      },
+      {
+        city: "Mumbai",
+        temp: 33,
+        condition: "Sunny",
+        info: "Hot and sunny with high humidity."
+      },
+      {
+        city: "Paris",
+        temp: 22,
+        condition: "Rainy",
+        info: "Occasional showers expected during the day."
+      },
+      {
+        city: "Cape Town",
+        temp: 19,
+        condition: "Windy",
+        info: "Strong coastal winds with mild temperature."
+      }
+    ];
+
+    function loadForecasts() {
+      const section = document.getElementById("forecast-section");
+
+      forecastData.forEach(data => {
+        const card = document.createElement("div");
+        card.className = "forecast-card";
+
+        card.innerHTML = `
+          <h4>${data.city}</h4>
+          <p>Condition: ${data.condition}</p>
+          <p>Temperature: ${data.temp}°C</p>
+          <p>${data.info}</p>
+          <div class="graph-bar" style="width: ${data.temp * 2}px;"></div>
+        `;
+
+        section.appendChild(card);
+      });
+    }
+
+    window.onload = loadForecasts;
+  </script>
+</body>
+</html>
+
+
+
